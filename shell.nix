@@ -1,18 +1,4 @@
-{
-  nixpkgs ?
-    let
-      inherit (import <nixpkgs> {}) fetchFromGitHub;
-    in
-      import
-        ( fetchFromGitHub
-          {
-            owner = "NixOS";
-            repo = "nixpkgs";
-            rev = "0bd54a6d5d4eba361c5b8ff04dd3c02d6dbfb259";
-            sha256 = "10fkcq9f2pmg5985kbxq05jgx9ih7axpqsam3jxkzpyalgd0gwvy";
-          }
-        ) {}
-}:
+{ nixpkgs ? import <nixpkgs> {} }:
 
 let
   inherit (nixpkgs) pkgs;
@@ -107,7 +93,6 @@ in
           printf "  ${white}notebook${nc} is an alias for ${white}jupyter-notebook${nc}.\n"
           printf "  ${white}livenotebook${nc} is an alias for ${white}jupyter-notebook${nc} using your ${white}.env${nc} file in order to get a db connection.\n"
           printf "  ${white}liveipython${nc} is an alias for ${white}ipython${nc} using your ${white}.env${nc} file in order to get a db connection.\n"
-          printf "  ${white}liveihaskell${nc} is an alias for ${white}ihaskell${nc} using your ${white}.env${nc} file in order to get a db connection.\n"
           echo ""
           echo "E.g."
           printf "  ${white}$ jupyter-remote create ./ec2-spot.nix ${light_grey}# create your deployment${nc}\n"
@@ -116,7 +101,6 @@ in
           printf "  ${white}$ notebook                             ${light_grey}# run jupyter notebook without a db connection${nc}\n"
           printf "  ${white}$ livenotebook                         ${light_grey}# run jupyter notebook with a db connection${nc}\n"
           printf "  ${white}$ liveipython                          ${light_grey}# run ipython console  with a db connection${nc}\n"
-          printf "  ${white}$ liveihaskell                         ${light_grey}# run ihaskell console with a db connection${nc}\n"
           echo ""
 
           export NIXOPS_STATE=.localstate.nixops
@@ -126,19 +110,6 @@ in
           alias notebook='jupyter notebook'
           alias livenotebook='withenv jupyter notebook'
           alias liveipython='withenv ipython console'
-          alias liveihaskell='withenv ipython console --kernel haskell'
-
-          echo "Install git filters..."
-          git config filter.nbstripout.clean 'nbstripout'
-          git config filter.nbstripout.smudge cat
-          git config filter.nbstripout.required true
-          # TODO: lhs would be very easy to manage in git, but unfortunately ihaskell convert doesn't handle stdout/stdin
-          # git config filter.lhsconvert.clean 'ihaskell convert'
-          # git config filter.lhsconvert.smudge cat
-          # git config filter.lhsconvert.required true
-
-          echo "Install ihaskell kernel..."
-          ${jupyter-env}/bin/ihaskell install -l $(${jupyter-env}/bin/ghc --print-libdir)
 
           # echo "Run in a local environment so that we can use pip as needed..."
           # virtualenv --python=python3.4 .venv
